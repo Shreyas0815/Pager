@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HPMS Mobile Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0f1e;display:flex;justify-content:center;align-items:center;min-height:100vh;color:#f0f4f8}
+.phone-frame{width:390px;height:844px;background:#f8fafc;border-radius:40px;overflow:hidden;box-shadow:0 0 60px rgba(0,212,170,0.15),0 0 0 8px #1a2332;position:relative;display:flex;flex-direction:column}
+.phone-notch{height:44px;background:#fff;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e2e8f0}
+.phone-notch span{font-size:11px;font-weight:600;color:#64748b}
+.phone-body{flex:1;overflow-y:auto;padding:16px}
+.phone-body::-webkit-scrollbar{width:4px}
+.phone-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+.tab-bar{height:56px;background:#fff;border-top:1px solid #e2e8f0;display:flex}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:600;color:#94a3b8;cursor:pointer;border:none;background:none;transition:color .2s}
+.tab-btn.active{color:#00d4aa}
+.tab-btn svg{width:20px;height:20px}
+
+/* Login */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#0a0f1e;margin:-16px;padding:24px}
+.login-logo{width:64px;height:64px;border-radius:16px;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:16px}
+.login-title{font-size:20px;font-weight:700;color:#f0f4f8;margin-bottom:4px}
+.login-sub{font-size:12px;color:#64748b;margin-bottom:32px}
+.login-form{background:#111827;border-radius:14px;padding:20px;width:100%;border:1px solid rgba(148,163,184,0.15)}
+.login-label{font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;margin-top:12px}
+.login-input{width:100%;background:#1a2332;border:1px solid rgba(148,163,184,0.15);border-radius:8px;padding:10px 12px;color:#f0f4f8;font-size:14px;outline:none}
+.login-input:focus{border-color:#00d4aa}
+.login-btn{width:100%;padding:12px;background:#00d4aa;color:#0a0f1e;font-size:14px;font-weight:700;border:none;border-radius:8px;cursor:pointer;margin-top:20px}
+.login-btn:hover{opacity:.9}
+.login-demo{margin-top:16px;text-align:center;font-size:10px;color:#64748b}
+
+/* Dashboard */
+.welcome{margin-bottom:16px}
+.welcome-sub{font-size:13px;color:#94a3b8}
+.welcome-name{font-size:22px;font-weight:700;color:#0a0f1e;margin-top:2px}
+.welcome-role{font-size:11px;color:#94a3b8;margin-top:2px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.mini-stat{background:#fff;border-radius:10px;padding:10px;text-align:center;border-top:3px solid;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.mini-stat .val{font-size:20px;font-weight:800}
+.mini-stat .lbl{font-size:9px;color:#94a3b8;text-transform:uppercase;margin-top:2px}
+.section-title{font-size:15px;font-weight:700;color:#0a0f1e;margin-bottom:10px}
+.patient-card{background:#fff;border-radius:10px;padding:14px;margin-bottom:8px;border:1px solid #e2e8f0;cursor:pointer;transition:transform .15s}
+.patient-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.patient-card.critical-card{border-left:3px solid #ff3b5c}
+.patient-card.warning-card{border-left:3px solid #ffb020}
+.patient-card.stable-card{border-left:3px solid #00d4aa}
+.p-header{display:flex;justify-content:space-between;align-items:flex-start}
+.p-name{font-size:14px;font-weight:600;color:#0a0f1e}
+.p-meta{font-size:11px;color:#94a3b8;margin-top:2px}
+.badge{padding:2px 8px;border-radius:12px;font-size:9px;font-weight:700;letter-spacing:.5px}
+.badge-critical{background:rgba(255,59,92,.12);color:#ff3b5c}
+.badge-warning{background:rgba(255,176,32,.12);color:#ffb020}
+.badge-stable{background:rgba(0,212,170,.12);color:#00d4aa}
+.vitals-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.vital-cell{background:#f1f5f9;border-radius:6px;padding:6px;text-align:center}
+.vital-cell .vl{font-size:8px;font-weight:600;color:#94a3b8;text-transform:uppercase}
+.vital-cell .vv{font-size:13px;font-weight:700;color:#0a0f1e;margin-top:1px}
+.vital-cell .vu{font-size:8px;color:#94a3b8}
+
+/* Patient Detail */
+.detail-back{background:none;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;margin-bottom:12px;color:#0a0f1e}
+.detail-info{background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #e2e8f0}
+.detail-name{font-size:18px;font-weight:700;color:#0a0f1e}
+.detail-diag{font-size:12px;color:#64748b;font-style:italic;margin-top:4px}
+.vitals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.vital-big{background:#fff;border-radius:10px;padding:10px;text-align:center;border:1px solid #e2e8f0;border-top:3px solid}
+.vital-big .vi{font-size:16px}
+.vital-big .vl{font-size:8px;font-weight:600;color:#94a3b8;text-transform:uppercase}
+.vital-big .vv{font-size:18px;font-weight:800;margin-top:2px}
+.vital-big .vu{font-size:9px;color:#94a3b8}
+.report-btn{width:100%;padding:12px;background:#00d4aa;color:#0a0f1e;font-weight:700;border:none;border-radius:10px;cursor:pointer;margin-bottom:16px;font-size:14px}
+
+/* Alerts */
+.alert-card{background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid #e2e8f0;display:flex;gap:8px;align-items:flex-start}
+.alert-card.a-critical{border-left:3px solid #ff3b5c}
+.alert-card.a-warning{border-left:3px solid #ffb020}
+.alert-msg{font-size:12px;font-weight:500;color:#0a0f1e;line-height:1.4}
+.alert-meta{font-size:10px;color:#94a3b8;margin-top:3px}
+.ack-btn{background:rgba(0,212,170,.1);color:#00d4aa;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+
+/* Sync indicator */
+.sync-bar{position:absolute;top:0;left:0;right:0;height:3px;z-index:10}
+.sync-bar.connected{background:linear-gradient(90deg,#00d4aa,#3b82f6)}
+.sync-bar.disconnected{background:#ff3b5c}
+
+/* Pulse animation */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pulse{animation:pulse 2s infinite}
+
+.label-frame{text-align:center;margin-bottom:20px;color:#94a3b8;font-size:13px;font-weight:600}
+.label-frame em{color:#00d4aa;font-style:normal}
+</style>
+</head>
+<body>
+<div>
+<div class="label-frame">📱 HPMS Mobile App — <em>Real-Time Synced</em> with Admin Dashboard</div>
+<div class="phone-frame" id="phone">
+<div class="sync-bar disconnected" id="syncBar"></div>
+<div class="phone-notch"><span id="clockText">12:00 AM</span></div>
+<div class="phone-body" id="screen"></div>
+<div class="tab-bar" id="tabBar" style="display:none">
+  <button class="tab-btn active" onclick="switchTab('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </button>
+  <button class="tab-btn" onclick="switchTab('alerts')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    Alerts
+  </button>
+  <button class="tab-btn" onclick="switchTab('profile')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profile
+  </button>
+</div>
+</div>
+</div>
+
+<script>
+const API='http://localhost:3001';
+let token=null, user=null, patients=[], liveVitals={}, alerts=[], alertSummary={};
+let currentTab='login', selectedPatient=null, ws=null;
+
+// Clock
+setInterval(()=>{document.getElementById('clockText').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})},1000);
+document.getElementById('clockText').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+// API
+async function api(path,opts={}){
+  const h={'Content-Type':'application/json',...opts.headers};
+  if(token)h['Authorization']='Bearer '+token;
+  const r=await fetch(API+path,{...opts,headers:h});
+  return r.json();
+}
+
+// WebSocket
+function connectWS(){
+  const url='ws://localhost:3001/ws'+(token?'?token='+token:'');
+  ws=new WebSocket(url);
+  ws.onopen=()=>{document.getElementById('syncBar').className='sync-bar connected';};
+  ws.onclose=()=>{document.getElementById('syncBar').className='sync-bar disconnected';setTimeout(connectWS,3000);};
+  ws.onerror=()=>ws.close();
+  ws.onmessage=(e)=>{
+    try{
+      const m=JSON.parse(e.data);
+      if(m.type==='vitals'){liveVitals[m.data.patientId]=m.data;renderCurrentTab();}
+      if(m.type==='alerts'){alerts.unshift(m.data);alerts=alerts.slice(0,50);if(currentTab==='alerts')renderAlerts();}
+    }catch(err){}
+  };
+}
+
+// Login
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value;
+  const pass=document.getElementById('loginPass').value;
+  try{
+    const d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({email,password:pass})});
+    token=d.token;user=d.user;
+    connectWS();
+    document.getElementById('tabBar').style.display='flex';
+    await loadData();
+    switchTab('dashboard');
+  }catch(err){alert('Login failed');}
+}
+
+async function doLogout(){
+  token=null;user=null;patients=[];liveVitals={};alerts=[];
+  if(ws)ws.close();
+  document.getElementById('tabBar').style.display='none';
+  switchTab('login');
+}
+
+async function loadData(){
+  try{
+    const[p,a,s]=await Promise.all([api('/api/patients'),api('/api/alerts?limit=30'),api('/api/alerts/summary')]);
+    patients=p;alerts=a;alertSummary=s;
+  }catch(err){console.log('Load err:',err);}
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{b.className='tab-btn'+(['dashboard','alerts','profile'][i]===tab?' active':'');});
+  renderCurrentTab();
+}
+
+function renderCurrentTab(){
+  if(currentTab==='login')renderLogin();
+  else if(currentTab==='dashboard')renderDashboard();
+  else if(currentTab==='detail')renderDetail();
+  else if(currentTab==='alerts')renderAlerts();
+  else if(currentTab==='profile')renderProfile();
+}
+
+function renderLogin(){
+  document.getElementById('screen').innerHTML=`
+  <div class="login-screen">
+    <div class="login-logo">🏥</div>
+    <div class="login-title">HPMS Mobile</div>
+    <div class="login-sub">Hospital Patient Monitoring System</div>
+    <div class="login-form">
+      <div class="login-label">Email Address</div>
+      <input class="login-input" id="loginEmail" value="sarah.smith@hospital.com">
+      <div class="login-label">Password</div>
+      <input class="login-input" id="loginPass" type="password" value="password123">
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="login-demo">Demo: sarah.smith@hospital.com / password123</div>
+    </div>
+  </div>`;
+}
+
+function renderDashboard(){
+  const crit=patients.filter(p=>p.status==='CRITICAL').length;
+  const warn=patients.filter(p=>p.status==='WARNING').length;
+  let html=`<div class="welcome"><div class="welcome-sub">Welcome back,</div>
+    <div class="welcome-name">${user?.name||'Doctor'}</div>
+    <div class="welcome-role">${user?.role||''} • ${user?.department||''}</div></div>
+    <div class="stats-row">
+      <div class="mini-stat" style="border-color:#00d4aa"><div style="font-size:14px">👥</div><div class="val">${patients.length}</div><div class="lbl">Patients</div></div>
+      <div class="mini-stat" style="border-color:#ff3b5c"><div style="font-size:14px">🚨</div><div class="val" style="color:#ff3b5c">${crit}</div><div class="lbl">Critical</div></div>
+      <div class="mini-stat" style="border-color:#ffb020"><div style="font-size:14px">⚠️</div><div class="val" style="color:#ffb020">${warn}</div><div class="lbl">Warning</div></div>
+      <div class="mini-stat" style="border-color:#3b82f6"><div style="font-size:14px">🔔</div><div class="val" style="color:#3b82f6">${alertSummary.unacknowledged||0}</div><div class="lbl">Alerts</div></div>
+    </div><div class="section-title">📋 All Patients</div>`;
+  patients.forEach(p=>{
+    const v=liveVitals[p.id]||{};
+    const cls=p.status==='CRITICAL'?'critical':p.status==='WARNING'?'warning':'stable';
+    html+=`<div class="patient-card ${cls}-card" onclick="openPatient('${p.id}')">
+      <div class="p-header"><div><div class="p-name">${p.name}</div>
+        <div class="p-meta">Bed ${p.bedNumber} • ${p.ward} • ${p.diagnosis||''}</div></div>
+        <span class="badge badge-${cls}">${p.status}</span></div>
+      ${v.heartRate?`<div class="vitals-row">
+        <div class="vital-cell"><div class="vl">HR</div><div class="vv">${v.heartRate}</div><div class="vu">bpm</div></div>
+        <div class="vital-cell"><div class="vl">SpO2</div><div class="vv">${v.spO2}</div><div class="vu">%</div></div>
+        <div class="vital-cell"><div class="vl">BP</div><div class="vv">${v.systolicBP}/${v.diastolicBP}</div></div>
+        <div class="vital-cell"><div class="vl">Temp</div><div class="vv">${v.temperature}</div><div class="vu">°C</div></div>
+      </div>`:'<div style="text-align:center;padding:8px;color:#94a3b8;font-size:11px" class="pulse">Waiting for data...</div>'}
+    </div>`;
+  });
+  document.getElementById('screen').innerHTML=html;
+}
+
+async function openPatient(id){
+  selectedPatient=patients.find(p=>p.id===id)||patients.find(p=>p.id==id);
+  currentTab='detail';
+  try{
+    const a=await api('/api/alerts?patientId='+id+'&limit=10');
+    selectedPatient._alerts=a;
+  }catch(e){}
+  renderDetail();
+}
+
+function renderDetail(){
+  if(!selectedPatient)return switchTab('dashboard');
+  const p=selectedPatient, v=liveVitals[p.id]||{};
+  const cls=p.status==='CRITICAL'?'critical':p.status==='WARNING'?'warning':'stable';
+  let html=`<button class="detail-back" onclick="switchTab('dashboard')">← Back</button>
+    <div class="detail-info"><div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="detail-name">${p.name}</div>
+        <div class="p-meta">${p.age}y • ${p.gender} • Bed ${p.bedNumber}</div>
+        <div class="detail-diag">${p.diagnosis||''}</div></div>
+      <span class="badge badge-${cls}">${p.status}</span></div></div>
+    <div class="section-title">💓 Live Vital Signs</div>
+    <div class="vitals-grid">
+      ${[{l:'Heart Rate',k:'heartRate',u:'BPM',i:'❤️',c:'#ff3b5c'},{l:'SpO2',k:'spO2',u:'%',i:'🫁',c:'#3b82f6'},
+         {l:'Systolic BP',k:'systolicBP',u:'mmHg',i:'🩸',c:'#8b5cf6'},{l:'Diastolic BP',k:'diastolicBP',u:'mmHg',i:'🩸',c:'#a855f7'},
+         {l:'Temperature',k:'temperature',u:'°C',i:'🌡️',c:'#ffb020'},{l:'Resp Rate',k:'respiratoryRate',u:'/min',i:'💨',c:'#00d4aa'}]
+        .map(vt=>`<div class="vital-big" style="border-top-color:${vt.c}"><div class="vi">${vt.i}</div><div class="vl">${vt.l}</div><div class="vv">${v[vt.k]??'--'}</div><div class="vu">${vt.u}</div></div>`).join('')}
+    </div>
+    <button class="report-btn" onclick="genReport('${p.id}')">📄 Generate Report</button>
+    <div class="section-title">🚨 Alert History</div>`;
+  (selectedPatient._alerts||[]).forEach(a=>{
+    html+=`<div class="alert-card ${a.severity==='CRITICAL'?'a-critical':'a-warning'}">
+      <span>${a.severity==='CRITICAL'?'🔴':'🟡'}</span>
+      <div style="flex:1"><div class="alert-msg">${a.message}</div>
+        <div class="alert-meta">${new Date(a.createdAt).toLocaleString()}${a.acknowledged?' • ✅ Ack':''}</div></div>
+      ${!a.acknowledged?`<button class="ack-btn" onclick="ackAlert('${a.id}')">ACK</button>`:''}
+    </div>`;
+  });
+  document.getElementById('screen').innerHTML=html;
+}
+
+async function genReport(pid){
+  try{
+    const r=await api('/api/reports/generate/'+pid,{method:'POST',body:JSON.stringify({type:'COMPREHENSIVE'})});
+    alert('Report generated! Stats available in admin dashboard.');
+  }catch(e){alert('Report generation failed');}
+}
+
+async function ackAlert(aid){
+  try{
+    await api('/api/alerts/'+aid+'/acknowledge',{method:'POST'});
+    if(selectedPatient?._alerts){selectedPatient._alerts=selectedPatient._alerts.map(a=>a.id===aid?{...a,acknowledged:true}:a);}
+    alerts=alerts.map(a=>a.id===aid?{...a,acknowledged:true}:a);
+    renderCurrentTab();
+  }catch(e){}
+}
+
+function renderAlerts(){
+  let html=`<div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="mini-stat" style="border-color:#ff3b5c"><div class="val" style="color:#ff3b5c">${alertSummary.critical||0}</div><div class="lbl">Critical</div></div>
+    <div class="mini-stat" style="border-color:#ffb020"><div class="val" style="color:#ffb020">${alertSummary.warning||0}</div><div class="lbl">Warning</div></div>
+    <div class="mini-stat" style="border-color:#3b82f6"><div class="val" style="color:#3b82f6">${alertSummary.unacknowledged||0}</div><div class="lbl">Pending</div></div></div>`;
+  if(alerts.length===0)html+='<div style="text-align:center;padding:40px;color:#94a3b8"><div style="font-size:32px;margin-bottom:8px">✅</div>No alerts</div>';
+  else alerts.forEach(a=>{
+    html+=`<div class="alert-card ${a.severity==='CRITICAL'?'a-critical':'a-warning'}">
+      <span>${a.severity==='CRITICAL'?'🔴':'🟡'}</span>
+      <div style="flex:1"><div class="alert-msg">${a.message}</div>
+        <div class="alert-meta">${a.patient?.name||a.patientName||''} • ${new Date(a.createdAt).toLocaleString()}${a.acknowledged?' • ✅':''}</div></div>
+      ${!a.acknowledged?`<button class="ack-btn" onclick="ackAlert('${a.id}')">ACK</button>`:''}
+    </div>`;
+  });
+  document.getElementById('screen').innerHTML=html;
+}
+
+function renderProfile(){
+  const initials=user?.name?.split(' ').map(n=>n[0]).join('').slice(0,2)||'??';
+  document.getElementById('screen').innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:20px;text-align:center;margin-bottom:16px;border:1px solid #e2e8f0">
+      <div style="width:60px;height:60px;border-radius:30px;background:#00d4aa;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px;font-weight:700;color:#fff">${initials}</div>
+      <div style="font-size:18px;font-weight:700;color:#0a0f1e">${user?.name||''}</div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px">${user?.role||''} • ${user?.department||''}</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:2px">${user?.email||''}</div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #e2e8f0">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;margin-bottom:10px">⚙️ System Status</div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px"><span style="color:#94a3b8">Server</span><span style="color:#00d4aa;font-weight:600">HEALTHY</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px"><span style="color:#94a3b8">WebSocket</span><span style="color:#00d4aa;font-weight:600">CONNECTED</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px"><span style="color:#94a3b8">Real-Time Sync</span><span style="color:#00d4aa;font-weight:600">ACTIVE</span></div>
+    </div>
+    <button onclick="doLogout()" style="width:100%;padding:12px;background:rgba(255,59,92,.08);color:#ff3b5c;font-weight:600;border:1px solid rgba(255,59,92,.2);border-radius:10px;cursor:pointer;font-size:14px">🚪 Sign Out</button>
+    <div style="text-align:center;font-size:10px;color:#94a3b8;margin-top:16px">HPMS Mobile v1.0.0</div>`;
+}
+
+// Auto-refresh
+setInterval(async()=>{if(token){try{const s=await api('/api/alerts/summary');alertSummary=s;}catch(e){}}},10000);
+
+// Initial render
+renderLogin();
+</script>
+</body>
+</html>

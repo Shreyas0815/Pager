@@ -1,0 +1,28 @@
+{
+  "name": "hpms-server",
+  "version": "1.0.0",
+  "description": "Hospital Patient Monitoring System - Core Processing Server",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:seed": "node src/utils/seedData.js",
+    "db:setup": "npx prisma db push && node src/utils/seedData.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pdfkit": "^0.15.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.5.0"
+  }
+}

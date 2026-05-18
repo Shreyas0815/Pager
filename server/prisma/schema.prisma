@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String           @id @default(uuid())
+  name           String
+  email          String           @unique
+  password       String
+  role           String           @default("NURSE") // ADMIN, DOCTOR, NURSE
+  department     String           @default("General")
+  phone          String           @default("")
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  assignments    StaffAssignment[]
+  acknowledgedAlerts Alert[]      @relation("AcknowledgedBy")
+  requestedReports   Report[]     @relation("RequestedBy")
+}
+
+model Patient {
+  id               String           @id @default(uuid())
+  name             String
+  age              Int
+  gender           String           // MALE, FEMALE, OTHER
+  bedNumber        String           @unique
+  ward             String
+  admissionDate    DateTime         @default(now())
+  diagnosis        String           @default("")
+  status           String           @default("STABLE") // STABLE, WARNING, CRITICAL, DISCHARGED
+  thresholdHRHigh  Float            @default(180)
+  thresholdHRLow   Float            @default(40)
+  thresholdSpO2Low Float            @default(85)
+  thresholdBPSysHigh Float          @default(200)
+  thresholdBPSysLow  Float          @default(70)
+  thresholdTempHigh  Float          @default(40)
+  thresholdTempLow   Float          @default(34)
+  thresholdRRHigh    Float          @default(30)
+  thresholdRRLow     Float          @default(8)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  vitals           VitalSign[]
+  alerts           Alert[]
+  assignments      StaffAssignment[]
+  equipment        Equipment[]
+  reports          Report[]
+}
+
+model VitalSign {
+  id              String   @id @default(uuid())
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  timestamp       DateTime @default(now())
+  heartRate       Float?
+  systolicBP      Float?
+  diastolicBP     Float?
+  spO2            Float?
+  temperature     Float?
+  respiratoryRate Float?
+  ecgData         String?  // JSON string of ECG waveform points
+
+  @@index([patientId, timestamp])
+}
+
+model Equipment {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // ECG, HEART_RATE_MONITOR, SPO2_SENSOR, BP_MONITOR, TEMP_SENSOR
+  serialNumber String  @default("")
+  bedNumber   String
+  patientId   String?
+  patient     Patient? @relation(fields: [patientId], references: [id])
+  status      String   @default("ONLINE") // ONLINE, OFFLINE, ERROR, MAINTENANCE
+  lastPingAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Alert {
+  id              String   @id @default(uuid())
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  type            String   // HEART_RATE, SPO2, BLOOD_PRESSURE, TEMPERATURE, RESPIRATORY_RATE, EQUIPMENT
+  severity        String   @default("INFO") // INFO, WARNING, CRITICAL
+  message         String
+  vitalType       String?
+  vitalValue      Float?
+  threshold       Float?
+  acknowledged    Boolean  @default(false)
+  acknowledgedById String?
+  acknowledgedBy   User?   @relation("AcknowledgedBy", fields: [acknowledgedById], references: [id])
+  acknowledgedAt  DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([patientId, createdAt])
+  @@index([severity, acknowledged])
+}
+
+model StaffAssignment {
+  id        String   @id @default(uuid())
+  staffId   String
+  staff     User     @relation(fields: [staffId], references: [id])
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  role      String   // PRIMARY_DOCTOR, ATTENDING_NURSE, CONSULTANT
+  createdAt DateTime @default(now())
+
+  @@unique([staffId, patientId])
+}
+
+model Report {
+  id            String   @id @default(uuid())
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id])
+  requestedById String
+  requestedBy   User     @relation("RequestedBy", fields: [requestedById], references: [id])
+  type          String   @default("COMPREHENSIVE") // COMPREHENSIVE, VITALS_SUMMARY, ALERT_HISTORY
+  status        String   @default("GENERATING") // GENERATING, COMPLETED, FAILED
+  data          String?  // JSON string of report data
+  generatedAt   DateTime?
+  createdAt     DateTime @default(now())
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  alertId     String?
+  title       String
+  body        String
+  type        String   @default("ALERT") // ALERT, INFO, SYSTEM
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([userId, read])
+}
