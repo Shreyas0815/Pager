@@ -1344,7 +1344,7 @@ input, select, textarea {
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 860px;
+  max-width: 920px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -1390,13 +1390,35 @@ input, select, textarea {
   margin: 0;
 }
 
-.modal-subtitle {
+.modal-meta-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.8rem;
+  gap: 8px;
+  margin-top: 6px;
+  align-items: center;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
   color: var(--text-secondary);
-  margin-top: 4px;
+  background: var(--bg-tertiary);
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.meta-pill strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.meta-pill.diagnosis {
+  background: var(--accent-primary-dim);
+  border-color: rgba(30, 64, 175, 0.2);
+  color: var(--accent-primary);
 }
 
 .modal-header-right {
@@ -1498,94 +1520,154 @@ input, select, textarea {
   margin-bottom: 6px;
 }
 
-.clinical-bullets {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
+.clinical-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.recommendation-bullets li {
-  margin-bottom: 4px;
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  background: var(--bg-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.checklist-item.recommendation {
+  background: rgba(30, 64, 175, 0.04);
+  border-color: rgba(30, 64, 175, 0.15);
+  color: var(--text-primary);
+}
+
+.checklist-icon {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 3px;
 }
 
 .report-section-title {
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+}
+
+.section-subtext {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .report-vitals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
   margin-bottom: 16px;
+}
+
+@media (max-width: 960px) {
+  .report-vitals-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .report-vitals-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .report-vital-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
 }
 
 .report-vital-top {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 4px;
 }
 
 .report-vital-icon {
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .report-vital-label {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .report-vital-main {
   display: flex;
   align-items: baseline;
-  gap: 4px;
-  margin-bottom: 6px;
+  justify-content: center;
+  gap: 3px;
+  margin: 4px 0 6px 0;
 }
 
 .report-vital-value {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--text-primary);
+  line-height: 1;
 }
 
 .report-vital-unit {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   color: var(--text-muted);
 }
 
-.report-vital-stats {
+.report-vital-stats-grid {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-  border-top: 1px solid var(--border-color);
-  padding-top: 6px;
-  margin-top: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  padding: 5px;
+  margin-bottom: 4px;
+}
+
+.vital-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+}
+
+.stat-name {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.stat-val {
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .report-vital-target {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
-  margin-top: 4px;
-  font-style: italic;
 }
 
 .trends-chip-group {
@@ -2002,44 +2084,113 @@ input, select, textarea {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Print Styles for Clean Hospital Report Export
+   Print Styles for Clean Hospital Report Export (0 Blank Pages)
    ═══════════════════════════════════════════════════════════ */
 @media print {
-  body * {
-    visibility: hidden;
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
   }
-  .printable-report, .printable-report * {
-    visibility: visible;
-  }
-  .printable-report {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    max-width: 100% !important;
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
     max-height: none !important;
     background: #ffffff !important;
-    color: #000000 !important;
-    border: none !important;
-    box-shadow: none !important;
+    color: #0f172a !important;
+    overflow: visible !important;
   }
-  .no-print {
+
+  /* Completely remove other application chrome and background cards */
+  .sidebar,
+  .header,
+  #main-header,
+  #sidebar-nav,
+  .page-header,
+  .stats-grid,
+  .patients-grid,
+  .alerts-list,
+  .chart-container,
+  .patient-card,
+  .no-print,
+  .modal-close-btn,
+  .modal-footer {
     display: none !important;
   }
-  .modal-overlay {
-    background: transparent !important;
-    position: static !important;
+
+  .app-layout, .main-content, .page-content {
+    display: block !important;
+    margin: 0 !important;
     padding: 0 !important;
-  }
-  .modal-header {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
     background: #ffffff !important;
-    border-bottom: 2px solid #000000 !important;
   }
+
+  .modal-overlay {
+    position: static !important;
+    display: block !important;
+    background: none !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  .modal-container, .printable-report {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .modal-body {
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
   .clinical-assessment-card {
-    border: 1px solid #cccccc !important;
-    background: #f9f9f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
+
+  .report-vitals-grid {
+    grid-template-columns: repeat(6, 1fr) !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
   .report-vital-card {
-    border: 1px solid #cccccc !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .report-box {
+    border: 1px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
