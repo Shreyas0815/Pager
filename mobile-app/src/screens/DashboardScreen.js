@@ -23,7 +23,14 @@ export default function DashboardScreen({ navigation }) {
       setLiveVitals(prev => ({ ...prev, [data.patientId]: data }));
     });
 
-    return unsub;
+    // Listen for instant patient status changes (critical/warning)
+    const unsubStatus = wsService.on('patient-status', (data) => {
+      setPatients(prev => prev.map(p =>
+        p.id === data.patientId ? { ...p, status: data.status } : p
+      ));
+    });
+
+    return () => { unsub(); unsubStatus(); };
   }, []);
 
   async function loadUser() {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { WS_BASE } from '../utils/config.js';
+import { WS_BASE, isDemoMode } from '../utils/config.js';
+import { demoOnVitals, demoOnAlert, demoStart, demoStop } from '../utils/demoEngine.js';
 
 const WS_URL = WS_BASE + '/ws';
 
@@ -12,8 +13,49 @@ export function useWebSocket() {
   const [notifications, setNotifications] = useState([]);
   const wsRef = useRef(null);
   const reconnectTimeout = useRef(null);
+  const demoCleanup = useRef([]);
 
+  // ─── DEMO MODE: Simulate WebSocket with demoEngine events ───
+  useEffect(() => {
+    if (!isDemoMode()) return;
+
+    // Start the demo simulation engine
+    demoStart();
+    setIsConnected(true);
+
+    // Listen for vitals
+    const unsubVitals = demoOnVitals((vitals) => {
+      setLastVitals(prev => ({
+        ...prev,
+        [vitals.patientId]: vitals,
+      }));
+    });
+
+    // Listen for alerts
+    const unsubAlerts = demoOnAlert((alert) => {
+      setLatestAlerts(prev => [alert, ...prev].slice(0, 50));
+      setNotifications(prev => [{
+        id: alert.id,
+        type: 'CRITICAL_ALERT',
+        message: alert.message,
+        read: false,
+        createdAt: alert.createdAt,
+      }, ...prev].slice(0, 20));
+    });
+
+    demoCleanup.current = [unsubVitals, unsubAlerts];
+
+    return () => {
+      demoStop();
+      demoCleanup.current.forEach(fn => fn());
+      demoCleanup.current = [];
+    };
+  }, []);
+
+  // ─── REAL MODE: Actual WebSocket connection ─────────────────
   const connect = useCallback(() => {
+    if (isDemoMode()) return;
+
     const token = localStorage.getItem('hpms_token');
     const url = token ? `${WS_URL}?token=${token}` : WS_URL;
 
@@ -38,6 +80,9 @@ export function useWebSocket() {
             break;
           case 'alerts':
             setLatestAlerts(prev => [msg.data, ...prev].slice(0, 50));
+            break;
+          case 'patient-status':
+            // Patient status updates are handled by the vitals data flow
             break;
           case 'system-health':
             setSystemHealth(msg.data);
@@ -66,6 +111,7 @@ export function useWebSocket() {
   }, []);
 
   useEffect(() => {
+    if (isDemoMode()) return;
     connect();
     return () => {
       if (wsRef.current) wsRef.current.close();

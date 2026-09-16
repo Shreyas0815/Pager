@@ -1,4 +1,10 @@
-import { API_BASE } from './config.js';
+import { API_BASE, isDemoMode } from './config.js';
+import {
+  demoLogin, demoGetPatients, demoGetPatient, demoGetPatientVitals,
+  demoGetAlerts, demoGetAlertsSummary, demoAcknowledgeAlert,
+  demoGetEquipment, demoGetEquipmentStatus, demoGenerateReport,
+  demoGetSystemHealth, demoGetSystemClients, demoGetStaff, demoGetNotifications,
+} from './demoEngine.js';
 
 class ApiClient {
   constructor() {
@@ -56,6 +62,12 @@ class ApiClient {
 
   // Auth
   async login(email, password) {
+    if (isDemoMode()) {
+      const data = demoLogin(email, password);
+      this.setToken(data.token);
+      localStorage.setItem('hpms_user', JSON.stringify(data.user));
+      return data;
+    }
     const data = await this.post('/api/auth/login', { email, password });
     this.setToken(data.token);
     localStorage.setItem('hpms_user', JSON.stringify(data.user));
@@ -74,48 +86,81 @@ class ApiClient {
 
   // Patients
   getPatients(params) {
+    if (isDemoMode()) return Promise.resolve(demoGetPatients());
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
     return this.get(`/api/patients${qs}`);
   }
-  getPatient(id) { return this.get(`/api/patients/${id}`); }
+  getPatient(id) {
+    if (isDemoMode()) return Promise.resolve(demoGetPatient(id));
+    return this.get(`/api/patients/${id}`);
+  }
   getPatientVitals(id, params) {
+    if (isDemoMode()) return Promise.resolve(demoGetPatientVitals(id));
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
     return this.get(`/api/patients/${id}/vitals${qs}`);
   }
-  getPatientLiveVitals(id) { return this.get(`/api/patients/${id}/vitals/live`); }
+  getPatientLiveVitals(id) {
+    if (isDemoMode()) return Promise.resolve(demoGetPatientVitals(id).slice(-1)[0] || {});
+    return this.get(`/api/patients/${id}/vitals/live`);
+  }
 
   // Alerts
   getAlerts(params) {
+    if (isDemoMode()) return Promise.resolve(demoGetAlerts(params));
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
     return this.get(`/api/alerts${qs}`);
   }
-  getAlertsSummary() { return this.get('/api/alerts/summary'); }
-  acknowledgeAlert(id) { return this.post(`/api/alerts/${id}/acknowledge`); }
+  getAlertsSummary() {
+    if (isDemoMode()) return Promise.resolve(demoGetAlertsSummary());
+    return this.get('/api/alerts/summary');
+  }
+  acknowledgeAlert(id) {
+    if (isDemoMode()) return Promise.resolve(demoAcknowledgeAlert(id));
+    return this.post(`/api/alerts/${id}/acknowledge`);
+  }
 
   // Equipment
   getEquipment(params) {
+    if (isDemoMode()) return Promise.resolve(demoGetEquipment());
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
     return this.get(`/api/equipment${qs}`);
   }
-  getEquipmentStatus() { return this.get('/api/equipment/status'); }
+  getEquipmentStatus() {
+    if (isDemoMode()) return Promise.resolve(demoGetEquipmentStatus());
+    return this.get('/api/equipment/status');
+  }
 
   // Reports
-  generateReport(patientId, type) { return this.post(`/api/reports/generate/${patientId}`, { type }); }
+  generateReport(patientId, type) {
+    if (isDemoMode()) return Promise.resolve(demoGenerateReport(patientId));
+    return this.post(`/api/reports/generate/${patientId}`, { type });
+  }
   getReports(params) {
+    if (isDemoMode()) return Promise.resolve([]);
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
     return this.get(`/api/reports${qs}`);
   }
 
   // System
-  getSystemHealth() { return this.get('/api/system/health'); }
-  getSystemClients() { return this.get('/api/system/clients'); }
+  getSystemHealth() {
+    if (isDemoMode()) return Promise.resolve(demoGetSystemHealth());
+    return this.get('/api/system/health');
+  }
+  getSystemClients() {
+    if (isDemoMode()) return Promise.resolve(demoGetSystemClients());
+    return this.get('/api/system/clients');
+  }
 
   // Staff
   getStaff(params) {
+    if (isDemoMode()) return Promise.resolve(demoGetStaff());
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
     return this.get(`/api/staff${qs}`);
   }
-  getNotifications() { return this.get('/api/staff/notifications'); }
+  getNotifications() {
+    if (isDemoMode()) return Promise.resolve(demoGetNotifications());
+    return this.get('/api/staff/notifications');
+  }
 }
 
 const api = new ApiClient();

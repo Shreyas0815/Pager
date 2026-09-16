@@ -56,7 +56,7 @@ export default function AppNavigator({ onLogout }) {
           }
           return <Ionicons name={iconName} size={22} color={color} />;
         },
-        tabBarActiveTintColor: COLORS.accent,
+        tabBarActiveTintColor: '#1e40af',
         tabBarInactiveTintColor: COLORS.textMuted,
         tabBarStyle: {
           backgroundColor: COLORS.cardLight,

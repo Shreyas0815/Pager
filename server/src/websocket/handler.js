@@ -10,6 +10,7 @@ class WebSocketHandler {
       alerts: new Set(),
       'system-health': new Set(),
       'equipment-status': new Set(),
+      'patient-status': new Set(),
       notifications: new Set(),
     };
 
@@ -54,11 +55,11 @@ class WebSocketHandler {
     this.clients.set(clientId, {
       ws,
       user,
-      subscriptions: new Set(['vitals', 'alerts', 'system-health', 'equipment-status', 'notifications']),
+      subscriptions: new Set(['vitals', 'alerts', 'system-health', 'equipment-status', 'patient-status', 'notifications']),
     });
 
     // Auto-subscribe to all channels
-    for (const channel of ['vitals', 'alerts', 'system-health', 'equipment-status', 'notifications']) {
+    for (const channel of ['vitals', 'alerts', 'system-health', 'equipment-status', 'patient-status', 'notifications']) {
       this.channels[channel].add(clientId);
     }
 

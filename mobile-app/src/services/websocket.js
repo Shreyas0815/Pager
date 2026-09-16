@@ -1,4 +1,4 @@
-import { WS_URL } from '../utils/constants';
+import { getWsUrl } from '../utils/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class WebSocketService {
@@ -11,7 +11,8 @@ class WebSocketService {
 
   async connect() {
     const token = await AsyncStorage.getItem('hpms_token');
-    const url = token ? `${WS_URL}?token=${token}` : WS_URL;
+    const wsUrl = getWsUrl();
+    const url = token ? `${wsUrl}?token=${token}` : wsUrl;
 
     this.ws = new WebSocket(url);
 

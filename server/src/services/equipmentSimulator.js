@@ -73,7 +73,8 @@ class EquipmentSimulator {
       where: { status: { not: 'DISCHARGED' } },
     });
 
-    for (const patient of patients) {
+    // Process all patients in parallel to eliminate sequential delay
+    await Promise.all(patients.map(async (patient) => {
       let state = this.patientStates.get(patient.id);
       if (!state) {
         state = {
@@ -123,7 +124,7 @@ class EquipmentSimulator {
 
       // Process through stream processor
       await this.streamProcessor.process(vitalData, patient);
-    }
+    }));
 
     // Update equipment status ping
     await this.prisma.equipment.updateMany({

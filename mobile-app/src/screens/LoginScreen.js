@@ -92,7 +92,7 @@ export default function LoginScreen({ onLogin }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.navyDark || '#0f1b3d',
   },
   content: {
     flex: 1,
@@ -118,38 +118,38 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: '#f0f4f8',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: COLORS.textMuted,
+    color: '#94a3b8',
   },
   form: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: '#1e293b',
     borderRadius: 16,
     padding: 24,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(148,163,184,0.15)',
   },
   label: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: '#94a3b8',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 6,
     marginTop: 12,
   },
   input: {
-    backgroundColor: COLORS.card,
+    backgroundColor: '#0f1b3d',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: COLORS.text,
+    color: '#f0f4f8',
     fontSize: 15,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'rgba(148,163,184,0.15)',
     marginBottom: 4,
   },
   loginBtn: {
@@ -163,28 +163,28 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   loginBtnText: {
-    color: COLORS.primary,
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '700',
   },
   demoBox: {
     marginTop: 20,
     padding: 12,
-    backgroundColor: 'rgba(0,212,170,0.06)',
+    backgroundColor: 'rgba(30,64,175,0.08)',
     borderRadius: 8,
     alignItems: 'center',
   },
   demoLabel: {
     fontSize: 10,
     fontWeight: '600',
-    color: COLORS.textMuted,
+    color: '#94a3b8',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 6,
   },
   demoText: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: '#94a3b8',
     marginTop: 2,
   },
 });

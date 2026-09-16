@@ -273,10 +273,10 @@ const styles = StyleSheet.create({
   trendArrow: { fontSize: 16, fontWeight: '700', marginTop: 4 },
   trendMeta: { fontSize: 9, color: COLORS.textMuted, marginTop: 2 },
   reportBtn: {
-    backgroundColor: COLORS.accent, borderRadius: 12, paddingVertical: 14,
+    backgroundColor: '#1e40af', borderRadius: 12, paddingVertical: 14,
     alignItems: 'center', marginBottom: 24,
   },
-  reportBtnText: { color: COLORS.primary, fontSize: 15, fontWeight: '700' },
+  reportBtnText: { color: '#ffffff', fontSize: 15, fontWeight: '700' },
   alertCard: {
     backgroundColor: COLORS.cardLight, borderRadius: 10, padding: 14,
     marginBottom: 8, borderWidth: 1, borderColor: COLORS.borderLight,
@@ -289,10 +289,10 @@ const styles = StyleSheet.create({
   alertMessage: { fontSize: 13, fontWeight: '500', color: COLORS.primary },
   alertTime: { fontSize: 11, color: COLORS.textMuted, marginTop: 4 },
   ackBtn: {
-    backgroundColor: 'rgba(0,212,170,0.12)', paddingHorizontal: 12, paddingVertical: 6,
+    backgroundColor: 'rgba(30,64,175,0.08)', paddingHorizontal: 12, paddingVertical: 6,
     borderRadius: 6, marginLeft: 8,
   },
-  ackBtnText: { fontSize: 11, fontWeight: '700', color: COLORS.accent },
+  ackBtnText: { fontSize: 11, fontWeight: '700', color: '#1e40af' },
   emptyCard: {
     backgroundColor: COLORS.cardLight, borderRadius: 10, padding: 30,
     alignItems: 'center', borderWidth: 1, borderColor: COLORS.borderLight,

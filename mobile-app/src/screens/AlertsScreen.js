@@ -113,7 +113,7 @@ const s = StyleSheet.create({
   msg: { fontSize: 13, fontWeight: '500', color: COLORS.primary, lineHeight: 19 },
   meta: { fontSize: 11, color: COLORS.textSecondary, marginTop: 3 },
   time: { fontSize: 10, color: COLORS.textMuted, marginTop: 3 },
-  ack: { fontSize: 11, fontWeight: '700', color: COLORS.accent, backgroundColor: 'rgba(0,212,170,0.1)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6 },
+  ack: { fontSize: 11, fontWeight: '700', color: '#1e40af', backgroundColor: 'rgba(30,64,175,0.08)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6 },
   empty: { alignItems: 'center', paddingVertical: 60 },
   emptyT: { fontSize: 16, fontWeight: '600', color: COLORS.primary, marginTop: 12 },
 });

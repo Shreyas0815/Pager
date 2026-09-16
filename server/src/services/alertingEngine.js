@@ -5,7 +5,7 @@ class AlertingEngine {
     this.wsHandler = wsHandler;
     this.notificationGateway = notificationGateway;
     this.recentAlerts = new Map(); // patientId-type -> timestamp (debounce)
-    this.alertCooldown = 30000; // 30 seconds between same alert type for same patient
+    this.alertCooldown = 5000; // 5 seconds between same alert type for same patient
     this.alertsTriggered = 0;
   }
 
@@ -154,6 +154,14 @@ class AlertingEngine {
         patientName: patient.name,
         bedNumber: patient.bedNumber,
         ward: patient.ward,
+      });
+
+      // Broadcast patient status change so mobile clients update instantly
+      this.wsHandler.broadcast('patient-status', {
+        patientId: patient.id,
+        status: newStatus,
+        patientName: patient.name,
+        bedNumber: patient.bedNumber,
       });
 
       // Send push notification to assigned staff

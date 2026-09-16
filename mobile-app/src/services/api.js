@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE } from '../utils/constants';
+import { getApiBase } from '../utils/constants';
 
 class ApiService {
   constructor() {
@@ -35,7 +35,7 @@ class ApiService {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE}${path}`, {
+    const response = await fetch(`${getApiBase()}${path}`, {
       ...options,
       headers,
     });

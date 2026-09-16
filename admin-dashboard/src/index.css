@@ -6,52 +6,52 @@
 
 /* ── CSS Custom Properties ──────────────────────────── */
 :root {
-  /* Core Colors */
-  --bg-primary: #060a14;
-  --bg-secondary: #0c1220;
-  --bg-tertiary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.7);
-  --bg-card-hover: rgba(23, 32, 52, 0.8);
-  --bg-sidebar: #080d18;
-  --bg-header: rgba(8, 13, 24, 0.85);
+  /* Core Colors — White & Dark Navy Blue */
+  --bg-primary: #f4f7fc;
+  --bg-secondary: #eaeff8;
+  --bg-tertiary: #e2e8f4;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-sidebar: #0f1b3d;
+  --bg-header: rgba(255, 255, 255, 0.88);
 
   /* Accent Colors */
-  --accent-primary: #00d4aa;
-  --accent-primary-dim: rgba(0, 212, 170, 0.15);
-  --accent-primary-glow: rgba(0, 212, 170, 0.3);
-  --accent-blue: #3b82f6;
-  --accent-blue-dim: rgba(59, 130, 246, 0.15);
-  --accent-purple: #8b5cf6;
-  --accent-purple-dim: rgba(139, 92, 246, 0.15);
+  --accent-primary: #1e40af;
+  --accent-primary-dim: rgba(30, 64, 175, 0.10);
+  --accent-primary-glow: rgba(30, 64, 175, 0.18);
+  --accent-blue: #2563eb;
+  --accent-blue-dim: rgba(37, 99, 235, 0.10);
+  --accent-purple: #6d28d9;
+  --accent-purple-dim: rgba(109, 40, 217, 0.10);
 
   /* Status Colors */
-  --status-stable: #00d4aa;
-  --status-stable-bg: rgba(0, 212, 170, 0.12);
-  --status-warning: #ffb020;
-  --status-warning-bg: rgba(255, 176, 32, 0.12);
-  --status-critical: #ff3b5c;
-  --status-critical-bg: rgba(255, 59, 92, 0.12);
-  --status-offline: #6b7280;
-  --status-online: #00d4aa;
-  --status-error: #ef4444;
+  --status-stable: #059669;
+  --status-stable-bg: rgba(5, 150, 105, 0.10);
+  --status-warning: #d97706;
+  --status-warning-bg: rgba(217, 119, 6, 0.10);
+  --status-critical: #dc2626;
+  --status-critical-bg: rgba(220, 38, 38, 0.08);
+  --status-offline: #9ca3af;
+  --status-online: #059669;
+  --status-error: #dc2626;
 
   /* Text Colors */
-  --text-primary: #f0f4f8;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-accent: #00d4aa;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-accent: #1e40af;
 
   /* Borders */
-  --border-color: rgba(148, 163, 184, 0.1);
-  --border-hover: rgba(148, 163, 184, 0.2);
-  --border-accent: rgba(0, 212, 170, 0.3);
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-hover: rgba(15, 23, 42, 0.15);
+  --border-accent: rgba(30, 64, 175, 0.25);
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 212, 170, 0.15);
-  --shadow-critical: 0 0 20px rgba(255, 59, 92, 0.3);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 32px rgba(15, 23, 42, 0.10);
+  --shadow-glow: 0 0 20px rgba(30, 64, 175, 0.10);
+  --shadow-critical: 0 0 20px rgba(220, 38, 38, 0.15);
 
   /* Layout */
   --sidebar-width: 260px;
@@ -124,12 +124,12 @@ input, select, textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.15);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.25);
 }
 
 /* ── Layout ────────────────────────────────────────── */
@@ -173,7 +173,7 @@ input, select, textarea {
 .sidebar-logo h1 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #f0f4f8;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -182,7 +182,7 @@ input, select, textarea {
 .sidebar-logo h1 .logo-icon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, var(--accent-primary), #00b894);
+  background: linear-gradient(135deg, #1e40af, #2563eb);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -218,7 +218,7 @@ input, select, textarea {
   gap: 12px;
   padding: 10px 14px;
   border-radius: var(--radius-md);
-  color: var(--text-secondary);
+  color: rgba(148, 163, 184, 0.9);
   font-weight: 500;
   font-size: 0.9rem;
   transition: all var(--transition-fast);
@@ -227,13 +227,13 @@ input, select, textarea {
 }
 
 .sidebar-link:hover {
-  background: rgba(148, 163, 184, 0.08);
-  color: var(--text-primary);
+  background: rgba(30, 64, 175, 0.06);
+  color: #f0f4f8;
 }
 
 .sidebar-link.active {
-  background: var(--accent-primary-dim);
-  color: var(--accent-primary);
+  background: rgba(37, 99, 235, 0.15);
+  color: #93c5fd;
 }
 
 .sidebar-link.active::before {
@@ -244,7 +244,7 @@ input, select, textarea {
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: var(--accent-primary);
+  background: #3b82f6;
   border-radius: 0 3px 3px 0;
 }
 
@@ -276,7 +276,7 @@ input, select, textarea {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: rgba(0, 212, 170, 0.06);
+  background: rgba(30, 64, 175, 0.06);
   border-radius: var(--radius-md);
   font-size: 0.75rem;
 }
@@ -370,21 +370,21 @@ input, select, textarea {
   align-items: center;
   gap: 10px;
   padding: 6px 14px;
-  background: rgba(148, 163, 184, 0.06);
+  background: rgba(30, 64, 175, 0.05);
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: background var(--transition-fast);
 }
 
 .header-user:hover {
-  background: rgba(148, 163, 184, 0.12);
+  background: rgba(30, 64, 175, 0.10);
 }
 
 .header-user .user-avatar {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-blue));
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -607,7 +607,7 @@ input, select, textarea {
 }
 
 .vital-mini {
-  background: rgba(148, 163, 184, 0.04);
+  background: rgba(30, 64, 175, 0.04);
   border-radius: var(--radius-sm);
   padding: 8px;
   text-align: center;
@@ -712,7 +712,7 @@ input, select, textarea {
 
 .alert-ack-btn:hover {
   background: var(--accent-primary);
-  color: var(--bg-primary);
+  color: #ffffff;
 }
 
 /* ── Equipment Grid ────────────────────────────────── */
@@ -848,7 +848,7 @@ input, select, textarea {
 
 .btn-primary {
   background: var(--accent-primary);
-  color: var(--bg-primary);
+  color: #ffffff;
 }
 
 .btn-primary:hover {
@@ -943,7 +943,7 @@ input, select, textarea {
 .login-logo .logo-symbol {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, var(--accent-primary), #00b894);
+  background: linear-gradient(135deg, #1e40af, #2563eb);
   border-radius: var(--radius-lg);
   display: inline-flex;
   align-items: center;
@@ -977,8 +977,8 @@ input, select, textarea {
 .login-btn {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, var(--accent-primary), #00b894);
-  color: var(--bg-primary);
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #ffffff;
   border: none;
   border-radius: var(--radius-md);
   font-weight: 700;
@@ -1096,7 +1096,7 @@ input, select, textarea {
 }
 
 .data-table tbody tr:hover {
-  background: rgba(148, 163, 184, 0.04);
+  background: rgba(30, 64, 175, 0.04);
 }
 
 /* ── Filter Bar ────────────────────────────────────── */

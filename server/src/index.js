@@ -141,10 +141,30 @@ setInterval(async () => {
 
 // Start server
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, async () => {
+const HOST = '0.0.0.0'; // Listen on all interfaces for mobile access
+server.listen(PORT, HOST, async () => {
+  // Get local IP addresses
+  const os = require('os');
+  const interfaces = os.networkInterfaces();
+  const localIPs = [];
+  for (const iface of Object.values(interfaces)) {
+    for (const addr of iface) {
+      if (addr.family === 'IPv4' && !addr.internal) {
+        localIPs.push(addr.address);
+      }
+    }
+  }
+
   console.log(`\n🏥 Hospital Patient Monitoring System`);
   console.log(`   Server running on http://localhost:${PORT}`);
   console.log(`   WebSocket on ws://localhost:${PORT}/ws`);
+  if (localIPs.length > 0) {
+    console.log(`   ──────────────────────────────────────`);
+    console.log(`   📱 Mobile devices can connect via:`);
+    localIPs.forEach(ip => {
+      console.log(`      http://${ip}:${PORT}`);
+    });
+  }
   console.log(`   ──────────────────────────────────────`);
 
   // Start equipment simulator after a short delay

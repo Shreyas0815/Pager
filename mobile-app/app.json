@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "backgroundColor": "#0a0f1e"
+      "backgroundColor": "#0f1b3d"
     },
     "ios": {
       "supportsTablet": true,
@@ -16,15 +16,25 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0a0f1e"
+        "backgroundColor": "#0f1b3d"
       },
-      "package": "com.hpms.mobile"
+      "package": "com.hpms.mobile",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE"
+      ]
     },
     "web": {
       "bundler": "metro"
     },
     "plugins": [
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "hpms-mobile"
+      }
+    }
   }
 }

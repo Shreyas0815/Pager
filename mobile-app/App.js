@@ -8,19 +8,29 @@ import LoginScreen from './src/screens/LoginScreen';
 import AppNavigator from './src/navigation/AppNavigator';
 import api from './src/services/api';
 import wsService from './src/services/websocket';
-import { COLORS } from './src/utils/constants';
+import { COLORS, discoverServer } from './src/utils/constants';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [statusText, setStatusText] = useState('Searching for server...');
 
   useEffect(() => {
-    checkAuth();
+    initApp();
   }, []);
 
-  async function checkAuth() {
+  async function initApp() {
     try {
+      // Auto-discover server on the network
+      setStatusText('Searching for server...');
+      const found = await discoverServer();
+      if (found) {
+        setStatusText('Server found! Checking auth...');
+      } else {
+        setStatusText('Server not found. Using default.');
+      }
+
+      // Check auth
       const user = await api.getUser();
       const token = await api.getToken();
       if (user && token) {
@@ -28,8 +38,7 @@ export default function App() {
         wsService.connect();
       }
     } catch (err) {
-      console.log('Auth check failed:', err.message);
-      setError(err.message);
+      console.log('Init failed:', err.message);
     } finally {
       setLoading(false);
     }
@@ -50,8 +59,12 @@ export default function App() {
   if (loading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color={COLORS.accent} />
-        <Text style={{ color: COLORS.textMuted, marginTop: 12, fontSize: 13 }}>Loading...</Text>
+        <View style={styles.loadingLogo}>
+          <Text style={styles.loadingEmoji}>🏥</Text>
+        </View>
+        <Text style={styles.loadingTitle}>HPMS Mobile</Text>
+        <ActivityIndicator size="large" color={COLORS.accent} style={{ marginTop: 20 }} />
+        <Text style={styles.loadingStatus}>{statusText}</Text>
         <StatusBar style="light" />
       </View>
     );
@@ -88,7 +101,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.navyDark || '#0f1b3d',
     height: Platform.OS === 'web' ? '100vh' : '100%',
+  },
+  loadingLogo: {
+    width: 72,
+    height: 72,
+    borderRadius: 18,
+    backgroundColor: COLORS.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  loadingEmoji: { fontSize: 36 },
+  loadingTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#f0f4f8',
+  },
+  loadingStatus: {
+    color: '#94a3b8',
+    marginTop: 12,
+    fontSize: 13,
   },
 });
