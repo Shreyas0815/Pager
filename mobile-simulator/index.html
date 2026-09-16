@@ -289,9 +289,47 @@ function renderDetail(){
 
 async function genReport(pid){
   try{
+    const btn=document.querySelector('.report-btn');
+    if(btn)btn.textContent='⏳ Generating Report...';
     const r=await api('/api/reports/generate/'+pid,{method:'POST',body:JSON.stringify({type:'COMPREHENSIVE'})});
-    alert('Report generated! Stats available in admin dashboard.');
-  }catch(e){alert('Report generation failed');}
+    const rep=r.data||r;
+    const p=rep.patient||selectedPatient||{};
+    const clin=rep.clinicalSummary||{};
+    const v=rep.currentVitals||{};
+    const stats=rep.lastHourStats||{};
+
+    const modalHtml=`
+      <div id="simModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(4px);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;">
+        <div style="background:#ffffff;border-radius:16px;max-height:85vh;width:100%;overflow-y:auto;padding:18px;box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#1e40af;text-transform:uppercase;">🏥 Clinical Summary</div>
+              <div style="font-size:16px;font-weight:800;color:#0f172a;">${p.name||'Patient'}</div>
+              <div style="font-size:11px;color:#64748b;">Bed ${p.bedNumber||'--'} • ${p.ward||''} • ${p.diagnosis||''}</div>
+            </div>
+            <button onclick="document.getElementById('simModal').remove()" style="background:#f1f5f9;border:none;border-radius:50%;width:28px;height:28px;font-weight:700;cursor:pointer;">✕</button>
+          </div>
+          <div style="background:${(clin.severity==='CRITICAL'?'rgba(220,38,38,0.06)':clin.severity==='WARNING'?'rgba(217,119,6,0.06)':'rgba(5,150,105,0.06)')};border-left:4px solid ${(clin.severity==='CRITICAL'?'#dc2626':clin.severity==='WARNING'?'#d97706':'#059669')};padding:10px;border-radius:8px;margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:4px;">🩺 Assessment: ${clin.severity||p.status||'STABLE'}</div>
+            <div style="font-size:11px;color:#334155;line-height:1.4;">${clin.narrative||'Patient vitals monitored continuously with stable trajectory.'}</div>
+          </div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:6px;">Current Vitals</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;">
+            <div style="background:#f8fafc;padding:8px;border-radius:6px;text-align:center;"><div style="font-size:9px;color:#64748b;">HR</div><div style="font-weight:700;font-size:13px;color:#dc2626;">${v.heartRate||'--'}</div></div>
+            <div style="background:#f8fafc;padding:8px;border-radius:6px;text-align:center;"><div style="font-size:9px;color:#64748b;">SpO2</div><div style="font-weight:700;font-size:13px;color:#2563eb;">${v.spO2||'--'}%</div></div>
+            <div style="background:#f8fafc;padding:8px;border-radius:6px;text-align:center;"><div style="font-size:9px;color:#64748b;">BP</div><div style="font-weight:700;font-size:13px;color:#7c3aed;">${v.systolicBP||'--'}/${v.diastolicBP||'--'}</div></div>
+          </div>
+          ${(clin.recommendations||[]).length>0?`<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px;">Care Plan</div><ul style="font-size:10px;color:#334155;padding-left:16px;margin:0 0 12px 0;">${clin.recommendations.map(r=>`<li>${r}</li>`).join('')}</ul>`:''}
+          <button onclick="document.getElementById('simModal').remove()" style="width:100%;padding:10px;background:#1e40af;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">Done / Close</button>
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend',modalHtml);
+    if(btn)btn.textContent='📄 Generate Report';
+  }catch(e){
+    alert('Report generation failed');
+    const btn=document.querySelector('.report-btn');
+    if(btn)btn.textContent='📄 Generate Report';
+  }
 }
 
 async function ackAlert(aid){

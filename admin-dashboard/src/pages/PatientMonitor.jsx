@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import LiveChart from '../components/LiveChart';
+import PatientReportModal from '../components/PatientReportModal';
 
 export default function PatientMonitor({ lastVitals }) {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function PatientMonitor({ lastVitals }) {
   const [loading, setLoading] = useState(true);
   const [generatingReport, setGeneratingReport] = useState(false);
   const [report, setReport] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) loadPatientData();
@@ -51,9 +53,10 @@ export default function PatientMonitor({ lastVitals }) {
 
   async function handleGenerateReport() {
     setGeneratingReport(true);
+    setIsModalOpen(true);
     try {
       const r = await api.generateReport(id, 'COMPREHENSIVE');
-      setReport(r.data);
+      setReport(r.data || r);
     } catch (err) {
       console.error('Failed to generate report:', err);
     }
@@ -259,6 +262,15 @@ export default function PatientMonitor({ lastVitals }) {
           )}
         </div>
       )}
+
+      {/* Patient Summary Report Modal */}
+      <PatientReportModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        reportData={report}
+        loading={generatingReport}
+        patientName={patient?.name}
+      />
     </div>
   );
 }

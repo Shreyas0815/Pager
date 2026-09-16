@@ -4,6 +4,7 @@ import {
   demoGetAlerts, demoGetAlertsSummary, demoAcknowledgeAlert,
   demoGetEquipment, demoGetEquipmentStatus, demoGenerateReport,
   demoGetSystemHealth, demoGetSystemClients, demoGetStaff, demoGetNotifications,
+  demoUpdateProfile,
 } from './demoEngine.js';
 
 class ApiClient {
@@ -82,6 +83,24 @@ class ApiClient {
   getUser() {
     const userStr = localStorage.getItem('hpms_user');
     return userStr ? JSON.parse(userStr) : null;
+  }
+
+  async getMe() {
+    if (isDemoMode()) return Promise.resolve(this.getUser());
+    const user = await this.get('/api/auth/me');
+    localStorage.setItem('hpms_user', JSON.stringify(user));
+    return user;
+  }
+
+  async updateProfile(profileData) {
+    if (isDemoMode()) {
+      const updated = demoUpdateProfile(profileData);
+      localStorage.setItem('hpms_user', JSON.stringify(updated));
+      return Promise.resolve(updated);
+    }
+    const updated = await this.put('/api/auth/profile', profileData);
+    localStorage.setItem('hpms_user', JSON.stringify(updated));
+    return updated;
   }
 
   // Patients

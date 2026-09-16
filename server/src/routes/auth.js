@@ -69,6 +69,47 @@ function createAuthRouter(prisma) {
     }
   });
 
+  // PUT /api/auth/profile - Update current user profile
+  router.put('/profile', authMiddleware, async (req, res) => {
+    try {
+      const { name, department, phone, currentPassword, newPassword } = req.body;
+      const updateData = {};
+
+      if (name && name.trim()) updateData.name = name.trim();
+      if (department !== undefined) updateData.department = department.trim();
+      if (phone !== undefined) updateData.phone = phone.trim();
+
+      // If user wants to change password
+      if (newPassword) {
+        if (!currentPassword) {
+          return res.status(400).json({ error: 'Current password is required to set a new password' });
+        }
+        if (newPassword.length < 6) {
+          return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+        }
+
+        const currentUser = await prisma.user.findUnique({ where: { id: req.user.id } });
+        const validPassword = await bcrypt.compare(currentPassword, currentUser.password);
+        if (!validPassword) {
+          return res.status(401).json({ error: 'Current password does not match' });
+        }
+
+        updateData.password = await bcrypt.hash(newPassword, 10);
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: req.user.id },
+        data: updateData,
+        select: { id: true, name: true, email: true, role: true, department: true, phone: true, isActive: true },
+      });
+
+      res.json(updatedUser);
+    } catch (err) {
+      console.error('[Auth] Profile update error:', err);
+      res.status(500).json({ error: err.message || 'Server error updating profile' });
+    }
+  });
+
   // POST /api/auth/register (admin only)
   router.post('/register', authMiddleware, async (req, res) => {
     try {

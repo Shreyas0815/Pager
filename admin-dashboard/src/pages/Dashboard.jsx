@@ -2,13 +2,35 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import LiveChart from '../components/LiveChart';
+import PatientReportModal from '../components/PatientReportModal';
 
 export default function Dashboard({ lastVitals, latestAlerts }) {
   const [patients, setPatients] = useState([]);
   const [alertSummary, setAlertSummary] = useState({});
   const [equipStatus, setEquipStatus] = useState({});
   const [vitalHistory, setVitalHistory] = useState({});
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [selectedReportPatient, setSelectedReportPatient] = useState(null);
+  const [reportData, setReportData] = useState(null);
+  const [generatingPatientId, setGeneratingPatientId] = useState(null);
   const navigate = useNavigate();
+
+  async function handleGeneratePatientReport(e, patient) {
+    e.stopPropagation();
+    setGeneratingPatientId(patient.id);
+    setSelectedReportPatient(patient);
+    setReportData(null);
+    setReportModalOpen(true);
+
+    try {
+      const res = await api.generateReport(patient.id, 'COMPREHENSIVE');
+      setReportData(res.data || res);
+    } catch (err) {
+      console.error('Failed to generate report for patient:', err);
+    } finally {
+      setGeneratingPatientId(null);
+    }
+  }
 
   useEffect(() => {
     loadData();
@@ -219,10 +241,43 @@ export default function Dashboard({ lastVitals, latestAlerts }) {
                   />
                 </div>
               )}
+
+              {/* Patient Card Action Bar */}
+              <div className="patient-card-footer" onClick={e => e.stopPropagation()}>
+                <button
+                  className="btn-card-report"
+                  onClick={(e) => handleGeneratePatientReport(e, patient)}
+                  disabled={generatingPatientId === patient.id}
+                  id={`gen-report-${patient.bedNumber}`}
+                  title="Generate Clinical Summary Report for this patient"
+                >
+                  {generatingPatientId === patient.id ? (
+                    <span>⏳ Generating...</span>
+                  ) : (
+                    <span>📄 Generate Report</span>
+                  )}
+                </button>
+                <button
+                  className="btn-card-view"
+                  onClick={() => navigate(`/patients/${patient.id}`)}
+                  title="Open live telemetry monitor"
+                >
+                  Monitor →
+                </button>
+              </div>
             </div>
           );
         })}
       </div>
+
+      {/* Patient Summary Report Modal */}
+      <PatientReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        reportData={reportData}
+        loading={generatingPatientId !== null}
+        patientName={selectedReportPatient?.name}
+      />
     </div>
   );
 }

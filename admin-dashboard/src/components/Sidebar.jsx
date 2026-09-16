@@ -42,6 +42,14 @@ export default function Sidebar({ alertCount }) {
         ))}
 
         <div className="sidebar-section-label" style={{ marginTop: '24px' }}>Account</div>
+        <NavLink
+          to="/profile"
+          className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+          id="nav-profile"
+        >
+          <span className="link-icon">👤</span>
+          My Profile
+        </NavLink>
         <button className="sidebar-link" onClick={logout} id="nav-logout" style={{ width: '100%', textAlign: 'left' }}>
           <span className="link-icon">🚪</span>
           Logout

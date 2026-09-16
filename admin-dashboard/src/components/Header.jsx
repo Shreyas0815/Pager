@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Header({ wsConnected, pageTitle }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -25,7 +27,14 @@ export default function Header({ wsConnected, pageTitle }) {
         <span className="header-time">
           {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </span>
-        <div className="header-user" id="header-user-menu">
+        <div
+          className="header-user clickable"
+          id="header-user-menu"
+          onClick={() => navigate('/profile')}
+          title="Click to view & edit Profile"
+          role="button"
+          tabIndex={0}
+        >
           <div className="user-avatar">{initials}</div>
           <div className="user-info">
             <div className="user-name">{user?.name || 'Admin'}</div>

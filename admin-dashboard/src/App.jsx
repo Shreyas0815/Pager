@@ -9,6 +9,7 @@ import PatientMonitor from './pages/PatientMonitor';
 import AlertsPanel from './pages/AlertsPanel';
 import EquipmentStatus from './pages/EquipmentStatus';
 import SystemHealth from './pages/SystemHealth';
+import Profile from './pages/Profile';
 
 const pageTitles = {
   '/': 'Dashboard',
@@ -16,6 +17,7 @@ const pageTitles = {
   '/alerts': 'Alert Management',
   '/equipment': 'Equipment Status',
   '/system': 'System Health',
+  '/profile': 'User Profile & Account',
 };
 
 function AppContent() {
@@ -56,6 +58,9 @@ function AppContent() {
           } />
           <Route path="/system" element={
             <SystemHealth systemHealth={systemHealth} />
+          } />
+          <Route path="/profile" element={
+            <Profile />
           } />
         </Routes>
       </div>

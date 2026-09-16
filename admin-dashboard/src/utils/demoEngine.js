@@ -237,38 +237,129 @@ export function demoGetStaff() {
   return demoStaff;
 }
 
+export function demoUpdateProfile(data) {
+  if (data.name) demoUser.name = data.name;
+  if (data.department) demoUser.department = data.department;
+  if (data.phone) demoUser.phone = data.phone;
+  return { ...demoUser };
+}
+
 export function demoGenerateReport(patientId) {
   const patient = demoPatients.find(p => p.id === patientId);
   if (!patient) throw new Error('Patient not found');
   const history = _vitalHistory[patientId] || [];
+  const latestVital = history.length > 0 ? history[history.length - 1] : {
+    heartRate: patient.status === 'CRITICAL' ? 142 : 78,
+    spO2: patient.status === 'CRITICAL' ? 87 : 98,
+    systolicBP: patient.status === 'CRITICAL' ? 168 : 122,
+    diastolicBP: patient.status === 'CRITICAL' ? 98 : 80,
+    temperature: 36.8,
+    respiratoryRate: 18,
+    timestamp: new Date().toISOString(),
+  };
+
   const calc = (key) => {
     const vals = history.map(v => v[key]).filter(Boolean);
-    if (vals.length === 0) return { avg: '--', min: '--', max: '--' };
+    if (vals.length === 0) return { avg: latestVital[key] || 75, min: latestVital[key] || 70, max: latestVital[key] || 80 };
     return {
       avg: (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1),
       min: Math.min(...vals).toFixed(1),
       max: Math.max(...vals).toFixed(1),
     };
   };
-  return {
-    data: {
-      lastHourStats: {
-        heartRate: calc('heartRate'),
-        spO2: calc('spO2'),
-        systolicBP: calc('systolicBP'),
-        diastolicBP: calc('diastolicBP'),
-        temperature: calc('temperature'),
-        respiratoryRate: calc('respiratoryRate'),
-      },
-      trends: {
-        heartRate: { direction: 'STABLE', percentChange: (Math.random() * 4 - 2).toFixed(1) },
-        spO2: { direction: 'STABLE', percentChange: (Math.random() * 2 - 1).toFixed(1) },
-        systolicBP: { direction: patient.status === 'CRITICAL' ? 'INCREASING' : 'STABLE', percentChange: (Math.random() * 6 - 2).toFixed(1) },
-        temperature: { direction: 'STABLE', percentChange: (Math.random() * 2 - 1).toFixed(1) },
-      },
-      alertCount: _alerts.filter(a => a.patientId === patientId).length,
-      generatedAt: new Date().toISOString(),
+
+  const patientAlerts = _alerts.filter(a => a.patientId === patientId);
+  const isCritical = patient.status === 'CRITICAL';
+  const isWarning = patient.status === 'WARNING';
+
+  const clinicalSummary = {
+    severity: patient.status || 'STABLE',
+    narrative: isCritical
+      ? `Patient ${patient.name} (${patient.age}y ${patient.gender}) is currently in CRITICAL condition with diagnosis of ${patient.diagnosis}. Multiple vital parameters exceed safety bounds, notably elevated heart rate and reduced SpO2 in ${patient.ward} Bed ${patient.bedNumber}. Immediate clinical oversight required.`
+      : isWarning
+      ? `Patient ${patient.name} (${patient.age}y ${patient.gender}) exhibits moderate physiological deviations consistent with ${patient.diagnosis}. Hemodynamics are guarded but responsive to intervention in ${patient.ward}.`
+      : `Patient ${patient.name} (${patient.age}y ${patient.gender}) remains clinically STABLE with all vital parameters resting comfortably within normal baseline limits. Recovery trajectory for ${patient.diagnosis} is on track.`,
+    keyFindings: [
+      `Heart Rate: ${latestVital.heartRate || 76} BPM (Target: 60-100 BPM)`,
+      `SpO2: ${latestVital.spO2 || 98}% (Target: >95%)`,
+      `Blood Pressure: ${latestVital.systolicBP || 120}/${latestVital.diastolicBP || 80} mmHg`,
+      `Body Temperature: ${latestVital.temperature || 36.8}°C`,
+    ],
+    recommendations: isCritical
+      ? [
+          'Escalate supplemental oxygenation to maintain SpO2 > 92%.',
+          'Administer IV antiarrhythmic / antihypertensive per protocol.',
+          'Request urgent attending physician bedside review.',
+          'Maintain continuous arterial line and ECG telemetry.',
+        ]
+      : isWarning
+      ? [
+          'Perform vital signs check q30m until values stabilize.',
+          'Review current fluid balance and electrolyte profile.',
+          'Ensure patent IV access and supplemental oxygen on standby.',
+        ]
+      : [
+          'Continue standard Q4H vital signs observation schedule.',
+          'Maintain regular scheduled oral medications.',
+          'Encourage ambulatory activity as tolerated.',
+        ],
+    lastEvaluatedAt: new Date().toISOString(),
+  };
+
+  const reportData = {
+    patient: {
+      id: patient.id,
+      name: patient.name,
+      age: patient.age,
+      gender: patient.gender,
+      bedNumber: patient.bedNumber,
+      ward: patient.ward,
+      diagnosis: patient.diagnosis,
+      admissionDate: patient.admissionDate || '2026-09-10',
+      status: patient.status,
     },
+    assignedStaff: (patient.assignments || []).map(a => ({
+      name: a.staff?.name || 'Dr. Sarah Smith',
+      role: a.role || 'PRIMARY_DOCTOR',
+      department: a.staff?.department || 'Cardiology',
+    })),
+    generatedAt: new Date().toISOString(),
+    currentVitals: latestVital,
+    lastHourStats: {
+      heartRate: calc('heartRate'),
+      spO2: calc('spO2'),
+      systolicBP: calc('systolicBP'),
+      diastolicBP: calc('diastolicBP'),
+      temperature: calc('temperature'),
+      respiratoryRate: calc('respiratoryRate'),
+    },
+    trends: {
+      heartRate: { direction: isCritical ? 'INCREASING' : 'STABLE', percentChange: (Math.random() * 4 - 2).toFixed(1) },
+      spO2: { direction: isCritical ? 'DECREASING' : 'STABLE', percentChange: (Math.random() * 2 - 1).toFixed(1) },
+      systolicBP: { direction: isCritical ? 'INCREASING' : 'STABLE', percentChange: (Math.random() * 6 - 2).toFixed(1) },
+      temperature: { direction: 'STABLE', percentChange: (Math.random() * 2 - 1).toFixed(1) },
+    },
+    clinicalSummary,
+    alertsSummary: {
+      total: patientAlerts.length,
+      critical: patientAlerts.filter(a => a.severity === 'CRITICAL').length,
+      warning: patientAlerts.filter(a => a.severity === 'WARNING').length,
+      acknowledged: patientAlerts.filter(a => a.acknowledged).length,
+      recentAlerts: patientAlerts.slice(0, 5).map(a => ({
+        id: a.id,
+        severity: a.severity,
+        message: a.message,
+        time: a.createdAt,
+        acknowledged: a.acknowledged,
+      })),
+    },
+    totalReadings: history.length,
+  };
+
+  return {
+    id: 'rep-' + Date.now(),
+    status: 'COMPLETED',
+    data: reportData,
   };
 }
 
