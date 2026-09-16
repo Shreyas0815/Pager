@@ -3,7 +3,7 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-export default function LiveChart({ data, label, color, unit, maxPoints = 30 }) {
+export default function LiveChart({ data, label, color, unit, maxPoints = 30, height = '180px' }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -85,7 +85,7 @@ export default function LiveChart({ data, label, color, unit, maxPoints = 30 }) 
   }, [data, label, color, unit, maxPoints]);
 
   return (
-    <div style={{ height: '180px', position: 'relative' }}>
+    <div style={{ height: typeof height === 'number' ? `${height}px` : height, position: 'relative', width: '100%' }}>
       <canvas ref={canvasRef}></canvas>
     </div>
   );

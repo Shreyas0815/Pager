@@ -29,18 +29,19 @@ class StreamProcessor {
 
       this.processedCount++;
 
-      // 2. Broadcast to all WebSocket clients
+      // 2. Run through alerting engine to determine fresh status and trigger any alerts
+      let currentStatus = patient.status;
+      if (this.alertingEngine) {
+        currentStatus = await this.alertingEngine.analyze(vitalData, patient);
+      }
+
+      // 3. Broadcast to all WebSocket clients with fresh patientStatus
       this.wsHandler.broadcast('vitals', {
         ...vitalData,
         id: vitalRecord.id,
         timestamp: vitalRecord.timestamp.toISOString(),
-        patientStatus: patient.status,
+        patientStatus: currentStatus || patient.status,
       });
-
-      // 3. Run through alerting engine
-      if (this.alertingEngine) {
-        await this.alertingEngine.analyze(vitalData, patient);
-      }
 
       // 4. Cleanup old records (keep last 24 hours in detail, older in summary)
       // This runs every 1000 records to avoid performance impact

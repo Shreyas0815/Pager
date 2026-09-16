@@ -11,6 +11,7 @@ export function useWebSocket() {
   const [systemHealth, setSystemHealth] = useState(null);
   const [equipmentStatus, setEquipmentStatus] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [patientStatuses, setPatientStatuses] = useState({});
   const wsRef = useRef(null);
   const reconnectTimeout = useRef(null);
   const demoCleanup = useRef([]);
@@ -29,11 +30,23 @@ export function useWebSocket() {
         ...prev,
         [vitals.patientId]: vitals,
       }));
+      if (vitals.patientStatus) {
+        setPatientStatuses(prev => ({
+          ...prev,
+          [vitals.patientId]: vitals.patientStatus,
+        }));
+      }
     });
 
     // Listen for alerts
     const unsubAlerts = demoOnAlert((alert) => {
       setLatestAlerts(prev => [alert, ...prev].slice(0, 50));
+      if (alert.patientId && alert.severity) {
+        setPatientStatuses(prev => ({
+          ...prev,
+          [alert.patientId]: alert.severity === 'CRITICAL' ? 'CRITICAL' : 'WARNING',
+        }));
+      }
       setNotifications(prev => [{
         id: alert.id,
         type: 'CRITICAL_ALERT',
@@ -77,12 +90,29 @@ export function useWebSocket() {
               ...prev,
               [msg.data.patientId]: msg.data,
             }));
+            if (msg.data.patientStatus) {
+              setPatientStatuses(prev => ({
+                ...prev,
+                [msg.data.patientId]: msg.data.patientStatus,
+              }));
+            }
             break;
           case 'alerts':
             setLatestAlerts(prev => [msg.data, ...prev].slice(0, 50));
+            if (msg.data.patientId && msg.data.severity) {
+              setPatientStatuses(prev => ({
+                ...prev,
+                [msg.data.patientId]: msg.data.severity === 'CRITICAL' ? 'CRITICAL' : 'WARNING',
+              }));
+            }
             break;
           case 'patient-status':
-            // Patient status updates are handled by the vitals data flow
+            if (msg.data.patientId && msg.data.status) {
+              setPatientStatuses(prev => ({
+                ...prev,
+                [msg.data.patientId]: msg.data.status,
+              }));
+            }
             break;
           case 'system-health':
             setSystemHealth(msg.data);
@@ -126,6 +156,7 @@ export function useWebSocket() {
     systemHealth,
     equipmentStatus,
     notifications,
+    patientStatuses,
     clearAlerts: () => setLatestAlerts([]),
   };
 }

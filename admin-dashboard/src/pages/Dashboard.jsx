@@ -4,7 +4,7 @@ import api from '../utils/api';
 import LiveChart from '../components/LiveChart';
 import PatientReportModal from '../components/PatientReportModal';
 
-export default function Dashboard({ lastVitals, latestAlerts }) {
+export default function Dashboard({ lastVitals, latestAlerts, patientStatuses = {} }) {
   const [patients, setPatients] = useState([]);
   const [alertSummary, setAlertSummary] = useState({});
   const [equipStatus, setEquipStatus] = useState({});
@@ -34,9 +34,21 @@ export default function Dashboard({ lastVitals, latestAlerts }) {
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 15000);
+    const interval = setInterval(loadData, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Sync real-time patient status changes immediately when WebSocket events arrive
+  useEffect(() => {
+    if (!patientStatuses || Object.keys(patientStatuses).length === 0) return;
+    setPatients(prev => prev.map(p => {
+      const realTimeStatus = patientStatuses[p.id];
+      if (realTimeStatus && realTimeStatus !== p.status) {
+        return { ...p, status: realTimeStatus };
+      }
+      return p;
+    }));
+  }, [patientStatuses]);
 
   // Accumulate vital history for charts
   useEffect(() => {
@@ -64,9 +76,18 @@ export default function Dashboard({ lastVitals, latestAlerts }) {
     }
   }
 
-  const criticalPatients = patients.filter(p => p.status === 'CRITICAL').length;
-  const warningPatients = patients.filter(p => p.status === 'WARNING').length;
-  const stablePatients = patients.filter(p => p.status === 'STABLE').length;
+  const getPatientCurrentStatus = (p) => patientStatuses[p.id] || p.status || 'STABLE';
+
+  const criticalPatients = patients.filter(p => getPatientCurrentStatus(p) === 'CRITICAL').length;
+  const warningPatients = patients.filter(p => getPatientCurrentStatus(p) === 'WARNING').length;
+  const stablePatients = patients.filter(p => getPatientCurrentStatus(p) === 'STABLE').length;
+
+  const statusOrder = { CRITICAL: 0, WARNING: 1, STABLE: 2 };
+  const sortedPatients = [...patients].sort((a, b) => {
+    const diff = (statusOrder[getPatientCurrentStatus(a)] ?? 2) - (statusOrder[getPatientCurrentStatus(b)] ?? 2);
+    if (diff !== 0) return diff;
+    return (a.bedNumber || '').localeCompare(b.bedNumber || '', undefined, { numeric: true });
+  });
 
   const getVitalStatus = (type, value, patient) => {
     if (!value) return 'normal';
@@ -125,43 +146,20 @@ export default function Dashboard({ lastVitals, latestAlerts }) {
         </div>
       </div>
 
-      {/* Recent Alerts Banner */}
-      {latestAlerts.length > 0 && (
-        <div style={{ marginBottom: '24px' }}>
-          <div className="card-title" style={{ marginBottom: '12px' }}>🔔 Recent Alerts</div>
-          <div className="alerts-list">
-            {latestAlerts.slice(0, 3).map((alert, i) => (
-              <div key={alert.id || i} className={`alert-item ${alert.severity?.toLowerCase()}`}>
-                <span className="alert-icon">
-                  {alert.severity === 'CRITICAL' ? '🔴' : '🟡'}
-                </span>
-                <div className="alert-content">
-                  <div className="alert-message">{alert.message}</div>
-                  <div className="alert-meta">
-                    {alert.patientName} • Bed {alert.bedNumber}
-                  </div>
-                </div>
-                <span className="alert-time">
-                  {new Date(alert.createdAt).toLocaleTimeString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Patient Cards Grid */}
       <div className="card-title" style={{ marginBottom: '16px' }}>📋 Patient Overview</div>
+
       <div className="patients-grid">
-        {patients.map(patient => {
+        {sortedPatients.map(patient => {
           const vitals = lastVitals[patient.id];
           const history = vitalHistory[patient.id] || [];
           const hrData = history.map(v => v.heartRate).filter(Boolean);
+          const currentStatus = getPatientCurrentStatus(patient);
 
           return (
             <div
               key={patient.id}
-              className={`patient-card ${patient.status?.toLowerCase()}`}
+              className={`patient-card ${currentStatus.toLowerCase()}`}
               onClick={() => navigate(`/patients/${patient.id}`)}
               id={`patient-card-${patient.bedNumber}`}
             >
@@ -175,8 +173,8 @@ export default function Dashboard({ lastVitals, latestAlerts }) {
                     {patient.diagnosis}
                   </div>
                 </div>
-                <span className={`status-badge ${patient.status?.toLowerCase()}`}>
-                  {patient.status}
+                <span className={`status-badge ${currentStatus.toLowerCase()}`}>
+                  {currentStatus}
                 </span>
               </div>
 
@@ -231,13 +229,14 @@ export default function Dashboard({ lastVitals, latestAlerts }) {
               )}
 
               {hrData.length > 5 && (
-                <div style={{ marginTop: '12px', height: '60px', opacity: 0.7 }}>
+                <div style={{ marginTop: '14px', marginBottom: '12px', height: '65px', opacity: 0.85, overflow: 'hidden' }}>
                   <LiveChart
                     data={hrData}
                     label="HR"
                     color="#00d4aa"
                     unit="bpm"
                     maxPoints={20}
+                    height={65}
                   />
                 </div>
               )}
@@ -269,6 +268,38 @@ export default function Dashboard({ lastVitals, latestAlerts }) {
           );
         })}
       </div>
+
+      {/* Recent Alerts Section (Scrollable) */}
+      {latestAlerts.length > 0 && (
+        <div style={{ marginTop: '32px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div className="card-title">🔔 Recent Alerts</div>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {latestAlerts.length} recent {latestAlerts.length === 1 ? 'alert' : 'alerts'}
+            </span>
+          </div>
+          <div className="alerts-scroll-container">
+            <div className="alerts-list">
+              {latestAlerts.map((alert, i) => (
+                <div key={alert.id || i} className={`alert-item ${alert.severity?.toLowerCase()}`}>
+                  <span className="alert-icon">
+                    {alert.severity === 'CRITICAL' ? '🔴' : '🟡'}
+                  </span>
+                  <div className="alert-content">
+                    <div className="alert-message">{alert.message}</div>
+                    <div className="alert-meta">
+                      {alert.patientName} • Bed {alert.bedNumber}
+                    </div>
+                  </div>
+                  <span className="alert-time">
+                    {new Date(alert.createdAt).toLocaleTimeString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Patient Summary Report Modal */}
       <PatientReportModal

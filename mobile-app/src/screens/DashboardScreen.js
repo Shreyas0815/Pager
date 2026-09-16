@@ -21,6 +21,11 @@ export default function DashboardScreen({ navigation }) {
 
     const unsub = wsService.on('vitals', (data) => {
       setLiveVitals(prev => ({ ...prev, [data.patientId]: data }));
+      if (data.patientStatus) {
+        setPatients(prev => prev.map(p =>
+          p.id === data.patientId && p.status !== data.patientStatus ? { ...p, status: data.patientStatus } : p
+        ));
+      }
     });
 
     // Listen for instant patient status changes (critical/warning)

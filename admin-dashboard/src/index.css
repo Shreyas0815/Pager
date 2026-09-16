@@ -639,6 +639,34 @@ input, select, textarea {
 .vital-mini.critical .vital-value { color: var(--status-critical); }
 
 /* ── Alert Items ───────────────────────────────────── */
+.alerts-scroll-container {
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  border-radius: var(--radius-md);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.alerts-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.alerts-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.alerts-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.alerts-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 .alerts-list {
   display: flex;
   flex-direction: column;
@@ -1262,9 +1290,12 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-color);
+  position: relative;
+  z-index: 2;
+  background: var(--bg-card);
 }
 
 .btn-card-report {

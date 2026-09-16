@@ -1,7 +1,7 @@
 const express = require('express');
 const { authMiddleware } = require('../middleware/auth');
 
-function createAlertsRouter(prisma) {
+function createAlertsRouter(prisma, wsHandler) {
   const router = express.Router();
 
   // GET /api/alerts - List alerts
@@ -83,10 +83,20 @@ function createAlertsRouter(prisma) {
           },
         });
 
+        const newStatus = unacknowledgedWarning > 0 ? 'WARNING' : 'STABLE';
         await prisma.patient.update({
           where: { id: alert.patientId },
-          data: { status: unacknowledgedWarning > 0 ? 'WARNING' : 'STABLE' },
+          data: { status: newStatus },
         });
+
+        if (wsHandler) {
+          wsHandler.broadcast('patient-status', {
+            patientId: alert.patientId,
+            status: newStatus,
+            patientName: alert.patient?.name,
+            bedNumber: alert.patient?.bedNumber,
+          });
+        }
       }
 
       res.json(alert);

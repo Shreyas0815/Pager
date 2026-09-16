@@ -108,10 +108,46 @@ class AlertingEngine {
       });
     }
 
-    // Process each alert
+    // Determine target clinical status from current vitals
+    let targetStatus = 'STABLE';
+    if (alerts.some(a => a.severity === 'CRITICAL')) {
+      targetStatus = 'CRITICAL';
+    } else if (alerts.some(a => a.severity === 'WARNING')) {
+      targetStatus = 'WARNING';
+    }
+
+    // Status transition handling: update whenever condition changes (e.g. gets critical, warning, or normalizes to stable)
+    if (targetStatus !== patient.status) {
+      const oldStatus = patient.status;
+      patient.status = targetStatus;
+
+      try {
+        await this.prisma.patient.update({
+          where: { id: patient.id },
+          data: { status: targetStatus },
+        });
+
+        // Broadcast patient status update to all connected clients immediately
+        this.wsHandler.broadcast('patient-status', {
+          patientId: patient.id,
+          status: targetStatus,
+          previousStatus: oldStatus,
+          patientName: patient.name,
+          bedNumber: patient.bedNumber,
+        });
+
+        console.log(`[AlertingEngine] Patient ${patient.name} (Bed ${patient.bedNumber}) status transition: ${oldStatus} -> ${targetStatus}`);
+      } catch (err) {
+        console.error('[AlertingEngine] Error updating patient status:', err.message);
+      }
+    }
+
+    // Process alerts with debouncing for alert list / notifications
     for (const alert of alerts) {
       await this.triggerAlert(alert, patient);
     }
+
+    return targetStatus;
   }
 
   async triggerAlert(alertData, patient) {
@@ -141,27 +177,12 @@ class AlertingEngine {
         },
       });
 
-      // Update patient status based on severity
-      const newStatus = alertData.severity === 'CRITICAL' ? 'CRITICAL' : 'WARNING';
-      await this.prisma.patient.update({
-        where: { id: patient.id },
-        data: { status: newStatus },
-      });
-
       // Broadcast alert via WebSocket
       this.wsHandler.broadcast('alerts', {
         ...alert,
         patientName: patient.name,
         bedNumber: patient.bedNumber,
         ward: patient.ward,
-      });
-
-      // Broadcast patient status change so mobile clients update instantly
-      this.wsHandler.broadcast('patient-status', {
-        patientId: patient.id,
-        status: newStatus,
-        patientName: patient.name,
-        bedNumber: patient.bedNumber,
       });
 
       // Send push notification to assigned staff

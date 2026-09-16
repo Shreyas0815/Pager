@@ -152,8 +152,34 @@ function connectWS(){
   ws.onmessage=(e)=>{
     try{
       const m=JSON.parse(e.data);
-      if(m.type==='vitals'){liveVitals[m.data.patientId]=m.data;renderCurrentTab();}
-      if(m.type==='alerts'){alerts.unshift(m.data);alerts=alerts.slice(0,50);if(currentTab==='alerts')renderAlerts();}
+      if(m.type==='vitals'){
+        liveVitals[m.data.patientId]=m.data;
+        if(m.data.patientStatus){
+          const p = patients.find(x => x.id === m.data.patientId || x.id == m.data.patientId);
+          if(p && p.status !== m.data.patientStatus){
+            p.status = m.data.patientStatus;
+          }
+        }
+        renderCurrentTab();
+      }
+      if(m.type==='patient-status'){
+        const p = patients.find(x => x.id === m.data.patientId || x.id == m.data.patientId);
+        if(p && p.status !== m.data.status){
+          p.status = m.data.status;
+          renderCurrentTab();
+        }
+      }
+      if(m.type==='alerts'){
+        alerts.unshift(m.data);
+        alerts=alerts.slice(0,50);
+        if(m.data.patientId && m.data.severity){
+          const p = patients.find(x => x.id === m.data.patientId || x.id == m.data.patientId);
+          if(p && (m.data.severity === 'CRITICAL' || (m.data.severity === 'WARNING' && p.status === 'STABLE'))){
+            p.status = m.data.severity;
+          }
+        }
+        if(currentTab==='alerts' || currentTab==='dashboard') renderCurrentTab();
+      }
     }catch(err){}
   };
 }
@@ -220,6 +246,12 @@ function renderLogin(){
 function renderDashboard(){
   const crit=patients.filter(p=>p.status==='CRITICAL').length;
   const warn=patients.filter(p=>p.status==='WARNING').length;
+  const statusRank = { CRITICAL: 0, WARNING: 1, STABLE: 2 };
+  const sortedPatients = [...patients].sort((a, b) => {
+    const rankDiff = (statusRank[a.status] ?? 2) - (statusRank[b.status] ?? 2);
+    if (rankDiff !== 0) return rankDiff;
+    return (a.bedNumber || '').localeCompare(b.bedNumber || '', undefined, { numeric: true });
+  });
   let html=`<div class="welcome"><div class="welcome-sub">Welcome back,</div>
     <div class="welcome-name">${user?.name||'Doctor'}</div>
     <div class="welcome-role">${user?.role||''} • ${user?.department||''}</div></div>
@@ -229,7 +261,7 @@ function renderDashboard(){
       <div class="mini-stat" style="border-color:#d97706"><div style="font-size:14px">⚠️</div><div class="val" style="color:#d97706">${warn}</div><div class="lbl">Warning</div></div>
       <div class="mini-stat" style="border-color:#2563eb"><div style="font-size:14px">🔔</div><div class="val" style="color:#2563eb">${alertSummary.unacknowledged||0}</div><div class="lbl">Alerts</div></div>
     </div><div class="section-title">📋 All Patients</div>`;
-  patients.forEach(p=>{
+  sortedPatients.forEach(p=>{
     const v=liveVitals[p.id]||{};
     const cls=p.status==='CRITICAL'?'critical':p.status==='WARNING'?'warning':'stable';
     html+=`<div class="patient-card ${cls}-card" onclick="openPatient('${p.id}')">
@@ -378,7 +410,18 @@ function renderProfile(){
 }
 
 // Auto-refresh
-setInterval(async()=>{if(token){try{const s=await api('/api/alerts/summary');alertSummary=s;}catch(e){}}},10000);
+setInterval(async()=>{
+  if(token){
+    try{
+      const [s, p] = await Promise.all([api('/api/alerts/summary'), api('/api/patients')]);
+      alertSummary = s;
+      if (Array.isArray(p) && p.length) {
+        patients = p;
+        renderCurrentTab();
+      }
+    }catch(e){}
+  }
+}, 5000);
 
 // Initial render
 renderLogin();

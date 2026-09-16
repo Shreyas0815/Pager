@@ -41,7 +41,7 @@ const equipmentSimulator = new EquipmentSimulator(prisma, wsHandler, streamProce
 // Mount routes
 app.use('/api/auth', createAuthRouter(prisma));
 app.use('/api/patients', createPatientsRouter(prisma));
-app.use('/api/alerts', createAlertsRouter(prisma));
+app.use('/api/alerts', createAlertsRouter(prisma, wsHandler));
 app.use('/api/equipment', createEquipmentRouter(prisma));
 app.use('/api/reports', createReportsRouter(prisma, reportingEngine));
 app.use('/api/staff', createStaffRouter(prisma));

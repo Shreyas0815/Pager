@@ -22,7 +22,7 @@ const pageTitles = {
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
-  const { isConnected, lastVitals, latestAlerts, systemHealth, equipmentStatus, notifications } = useWebSocket();
+  const { isConnected, lastVitals, latestAlerts, systemHealth, equipmentStatus, notifications, patientStatuses } = useWebSocket();
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -42,13 +42,13 @@ function AppContent() {
         <Header wsConnected={isConnected} pageTitle={pageTitle} />
         <Routes>
           <Route path="/" element={
-            <Dashboard lastVitals={lastVitals} latestAlerts={latestAlerts} />
+            <Dashboard lastVitals={lastVitals} latestAlerts={latestAlerts} patientStatuses={patientStatuses} />
           } />
           <Route path="/patients/:id" element={
             <PatientMonitor lastVitals={lastVitals} />
           } />
           <Route path="/patients" element={
-            <Dashboard lastVitals={lastVitals} latestAlerts={latestAlerts} />
+            <Dashboard lastVitals={lastVitals} latestAlerts={latestAlerts} patientStatuses={patientStatuses} />
           } />
           <Route path="/alerts" element={
             <AlertsPanel latestAlerts={latestAlerts} />
