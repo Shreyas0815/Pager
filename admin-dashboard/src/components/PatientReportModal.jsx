@@ -1,7 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function PatientReportModal({ isOpen, onClose, reportData, loading, patientName }) {
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -408,7 +427,7 @@ Total: ${alerts.total || 0} | Critical: ${alerts.critical || 0} | Warning: ${ale
     return 'stable';
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container printable-report" onClick={e => e.stopPropagation()}>
         {/* Modal Header */}
@@ -659,6 +678,7 @@ Total: ${alerts.total || 0} | Critical: ${alerts.critical || 0} | Warning: ${ale
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

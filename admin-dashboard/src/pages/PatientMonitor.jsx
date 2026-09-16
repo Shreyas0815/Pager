@@ -220,48 +220,7 @@ export default function PatientMonitor({ lastVitals }) {
         </div>
       </div>
 
-      {/* Report Panel */}
-      {report && (
-        <div className="card" style={{ marginTop: '16px' }}>
-          <div className="card-header">
-            <div className="card-title">📊 Generated Report</div>
-            <button className="btn btn-outline" onClick={() => setReport(null)}>Close</button>
-          </div>
-          <div className="grid-3">
-            {report.lastHourStats && Object.entries(report.lastHourStats).map(([key, stats]) => (
-              <div key={key} style={{ padding: '12px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                </div>
-                <div style={{ fontSize: '0.85rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Avg:</span>{' '}
-                  <span style={{ fontWeight: 600 }}>{stats.avg}</span>
-                  {' • '}
-                  <span style={{ color: 'var(--text-secondary)' }}>Min:</span>{' '}
-                  <span style={{ fontWeight: 600 }}>{stats.min}</span>
-                  {' • '}
-                  <span style={{ color: 'var(--text-secondary)' }}>Max:</span>{' '}
-                  <span style={{ fontWeight: 600 }}>{stats.max}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          {report.trends && !report.trends.insufficient_data && (
-            <div style={{ marginTop: '16px' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>
-                Trends
-              </div>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                {Object.entries(report.trends).map(([key, trend]) => (
-                  <span key={key} className={`status-badge ${trend.direction === 'STABLE' ? 'stable' : trend.direction === 'INCREASING' ? 'warning' : 'critical'}`}>
-                    {key}: {trend.direction} ({trend.percentChange > 0 ? '+' : ''}{trend.percentChange}%)
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+
 
       {/* Patient Summary Report Modal */}
       <PatientReportModal

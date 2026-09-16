@@ -147,7 +147,7 @@ input, select, textarea {
 
 .page-content {
   padding: 24px;
-  max-width: 1600px;
+  width: 100%;
 }
 
 /* ── Sidebar ───────────────────────────────────────── */
@@ -1323,37 +1323,44 @@ input, select, textarea {
    ═══════════════════════════════════════════════════════════ */
 .modal-overlay {
   position: fixed;
+  inset: 0;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 27, 61, 0.65);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.72);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 20px;
+  z-index: 99999;
+  padding: 24px;
   animation: fadeIn 0.2s ease;
+  overflow-y: auto;
 }
 
 .modal-container {
   background: var(--bg-primary);
   border: 1px solid var(--border-accent);
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 25px 70px rgba(15, 23, 42, 0.45);
   border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 920px;
-  max-height: 90vh;
+  width: 92%;
+  max-width: 960px;
+  height: 88vh;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: auto;
+  position: relative;
 }
 
 @keyframes modalPop {
-  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
